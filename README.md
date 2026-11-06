@@ -107,6 +107,22 @@ pong
 
 ## Logging
 
-All requests and responses are logged to the console, including headers and bodies.
+The server writes one JSON record per line to stdout, so PM2 can stream and collect
+events in real time. Each HTTP request and its response share a `requestId`; TCP
+connection lifecycle events have a `connectionId`. Request records include method,
+URL, HTTP version, client address, headers, and (for JSON requests) the parsed body.
+Response records include status, headers, response body, byte count, and elapsed
+time in milliseconds. Responses are logged when they finish or when the connection
+closes early. Separate `tcp.connection` and `tcp.close` records show socket activity.
+
+Body logging is enabled by default and previews are limited to 16 KiB per body.
+Configure it with environment variables:
+
+- `HTTP_LOG_BODIES=false` disables request and response body logging.
+- `HTTP_LOG_BODY_MAX_BYTES=32768` changes the maximum body preview size in bytes.
+  Set it to `0` to log body metadata without body content.
+
+Body contents can contain credentials or other sensitive data; disable body logging
+or restrict access to PM2 logs when handling sensitive traffic.
 
 ---

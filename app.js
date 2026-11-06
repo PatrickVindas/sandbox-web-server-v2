@@ -5,7 +5,11 @@ app.disable('x-powered-by');
 const sandboxRoutes = require('./routes/sandbox');
 const loggerMiddleware = require('./middleware/logger');
 
-app.use(express.json()); // for parsing JSON bodies
+app.use(express.json({
+  verify: (req, res, buffer) => {
+    req.rawBody = Buffer.from(buffer);
+  },
+}));
 app.set('etag', false);
 app.use(loggerMiddleware);
 app.use((req, res, next) => {
@@ -17,6 +21,7 @@ app.use((req, res, next) => {
 
 app.use('/', sandboxRoutes);
 
-app.listen(3000, () => {
+const server = app.listen(3000, () => {
   console.log('Sandbox server listening on port 3000');
 });
+loggerMiddleware.trackServer(server);
