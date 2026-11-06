@@ -1,11 +1,19 @@
 const express = require('express');
 const app = express();
+app.disable('x-powered-by');
+
 const sandboxRoutes = require('./routes/sandbox');
 const loggerMiddleware = require('./middleware/logger');
 
 app.use(express.json()); // for parsing JSON bodies
 app.set('etag', false);
 app.use(loggerMiddleware);
+app.use((req, res, next) => {
+  res.removeHeader('Server');
+  res.setHeader('Server', 'sandbox-gateway');
+  next();
+});
+
 
 app.use('/', sandboxRoutes);
 
